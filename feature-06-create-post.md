@@ -185,41 +185,45 @@ platform.]
 
 **Error Response:**
 
-    - **400 Bad Request:**
-    ```json
-       {
-         "success" : false,
-         "error"   : "Validation failed",
-         "details" : {
-            "title": "Title is required",
-            "content" : "Content exceeds 50,000 characters"
-          }
-        }
-    ```
+- **400 Bad Request:**
 
-     - **401 Aunauthorized:**
-     ```json
-        {
-            "success": false,
-            "error" : "Authentication required"
-        }
-     ```
+```json
+{
+  "success": false,
+  "error": "Validation failed",
+  "details": {
+    "title": "Title is required",
+    "content": "Content exceeds 50,000 characters"
+  }
+}
+```
 
-     - **404 Not Found:**
-    ```json
-       {
-         "success" : false,
-         "error" : "Category not found"
-        }
-    ```
+- **401 Aunauthorized:**
 
-     - **500 Internal Server Error:**
-     ```json
-        {
-            "success" : false,
-            "error "  : "Failed to create post"
-        }
-     ```
+```json
+{
+  "success": false,
+  "error": "Authentication required"
+}
+```
+
+- **404 Not Found:**
+
+```json
+{
+  "success": false,
+  "error": "Category not found"
+}
+```
+
+- **500 Internal Server Error:**
+
+```json
+{
+  "success": false,
+  "error ": "Failed to create post"
+}
+```
 
 **Processing Steps:**
 
