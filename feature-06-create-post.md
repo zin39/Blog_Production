@@ -234,3 +234,321 @@ platform.]
 5. Generate slug from title (handle duplicates)
 6. Insert into database
 7. Return created post
+
+### POST /api/posts
+
+**Purpose:** Create a new blog post (draft or published )
+
+**Auth Required:** Yes (session-based authentication)
+
+**Request Body:**
+
+```json
+{
+  "title": "How to Learn React",
+  "description": "A Comprehensive guide to learning React in 2025",
+  "category_id": "550e8400-e29b-41d4-a716-44665540000",
+  "content": "# Introduction\n\nReact is ...",
+  "status": "draft",
+  "images": [
+    "/uploads/2025/10/abc123-diagram.png",
+    "/uploads/2025/10/xyz789-screenshot.png"
+  ]
+}
+```
+
+**Validation Rules :**
+
+- `title` : Required, max 100 chars,
+- `description` : Required, max 300 chars,
+- `category_id` : Required, must exist in categories table
+- `status` : Required, enum ('draft' or 'published')
+- `images ` : Optional, array of strings
+
+**Response (201 Created):**
+
+```json
+{
+    "success": true,
+    "data" : {
+        "id" : "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "title" : "How to Learn React",
+        "description" : "A Comprehensive guide to learning React in 2025",
+        "slug" : " how-to-learn-react",
+        "category_id" : "550e8400-e29b-414d4-a716-446655440000",
+        "content" : "# Introduction\n\nReact is ...",
+        "status" : "draft",
+        "images" : [...],
+        "created_at": "2025-10-25t10:30:00Z",
+        "updated_at": "2025-10-25T10:30:00Z",
+        "published_at" : null
+    }
+}
+```
+
+**Error Response:**
+
+- **400 Bad Request:**
+
+```json
+{
+  "success": false,
+  "error": "Validation failed",
+  "details": {
+    "title": "Title is required",
+    "content": "Content exceeds 50,000 characters"
+  }
+}
+```
+
+- **401 Aunauthorized:**
+
+```json
+{
+  "success": false,
+  "error": "Authentication required"
+}
+```
+
+- **404 Not Found:**
+
+```json
+{
+  "success": false,
+  "error": "Category not found"
+}
+```
+
+- **500 Internal Server Error:**
+
+```json
+{
+  "success": false,
+  "error ": "Failed to create post"
+}
+```
+
+**Processing Steps:**
+
+1. Validate session authentication
+2. Validate request body fields
+3. Verify category_id exists
+4. Sanitize content (markdown -> HTML -> Sanitize)
+5. Generate slug from title (handle duplicates)
+6. Insert into database
+7. Return created post
+
+### PUT /api/posts/:id
+
+**Purpose:** Update existing post (for auto-save and manual edits)
+
+**Auth Required:** Yes (session-based authentication)
+
+**Request Body:**
+
+```json
+{
+  "title": "How to Learn React",
+  "description": "A Comprehensive guide to learning React in 2025",
+  "category_id": "550e8400-e29b-41d4-a716-44665540000",
+  "content": "# Introduction\n\nReact is ...",
+  "status": "draft",
+  "images": [
+    "/uploads/2025/10/abc123-diagram.png",
+    "/uploads/2025/10/xyz789-screenshot.png"
+  ]
+}
+```
+
+**Validation Rules :**
+
+- `title` : Required, max 100 chars,
+- `description` : Required, max 300 chars,
+- `category_id` : Required, must exist in categories table
+- `status` : Required, enum ('draft' or 'published')
+- `images ` : Optional, array of strings
+
+**Response (200 OK):**
+
+```json
+{
+    "success": true,
+    "data" : {
+        "id" : "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "title" : "How to Learn React",
+        "description" : "A Comprehensive guide to learning React in 2025",
+        "slug" : " how-to-learn-react",
+        "category_id" : "550e8400-e29b-414d4-a716-446655440000",
+        "content" : "# Introduction\n\nReact is ...",
+        "status" : "draft",
+        "images" : [...],
+        "created_at": "2025-10-25t10:30:00Z",
+        "updated_at": "2025-10-25T10:30:00Z",
+        "published_at" : null
+    }
+}
+```
+
+**Error Response:**
+
+- **400 Bad Request:**
+
+```json
+{
+  "success": false,
+  "error": "Validation failed",
+  "details": {
+    "title": "Title is required",
+    "content": "Content exceeds 50,000 characters"
+  }
+}
+```
+
+- **401 Aunauthorized:**
+
+```json
+{
+  "success": false,
+  "error": "Authentication required"
+}
+```
+
+- **404 Not Found:**
+
+```json
+{
+  "success": false,
+  "error": "Post not found"
+}
+```
+
+- **500 Internal Server Error:**
+
+```json
+{
+  "success": false,
+  "error ": "Failed to update post"
+}
+```
+
+**Processing Steps:**
+
+1. Validate session authentication
+2. Check if post exits (if not, return 404)
+3. Validate request body fields
+4. Verify category_id exists
+5. Sanitize content (markdown -> HTML -> Sanitize)
+6. If post is published:Keep existing slug(locked!)
+7. If post is draft: Regenerate slug from title
+8. Update database
+9. Set updatd_at = Now()
+10. Return updated post
+
+### POST /api/images
+
+**Purpose:** Upload an image file
+
+**Auth Required:** Yes authentication is required
+
+**Request:**
+
+- Content-Type: multipart/form-data
+- Field :`image` (file)
+
+**Validation Rules:**
+
+- File types: jpg, png, gif, webp
+- Max file size : 5MB
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "url": "/uploads/2025/10/abc123-diagram.png"
+  }
+}
+```
+
+**Error Responses:**
+
+- **413 Payload too large**
+
+```json
+{
+  "success": false,
+  "error": "The uploaded file exceeds the maximum allowed size of 5MB"
+}
+```
+
+- **415 Unsupported Media Type**
+
+```json
+{
+  "success": false,
+  "error": "Only JPEG, PNG and WEBP image formats are allowed"
+}
+```
+
+- **400 Bad Request**
+
+```json
+{
+  "success": false,
+  "error": "Please upload an image file"
+}
+```
+
+- **401 Unauthorized**
+
+```json
+{
+  "sucess": false,
+  "error": "You must be logged in to upload images."
+}
+```
+
+- **500 Internal Server Error**
+
+```json
+{
+  "success": false,
+  "error": "An unexpected error occured while processing your file"
+}
+```
+
+### GET /api/categories
+
+**Purpose:** Get all the categories available in Category table
+
+**Auth Required:** No authentication is not required
+
+**Request:** None (GET request)
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "7c9e6679-7425-40de-944b-e07fc1f990ae7",
+      "name": "Linux",
+      "slug": "linux",
+      "description": "Articles about Linux System administration"
+    }
+  ]
+}
+```
+
+**Error Responses:**
+
+- **500 Internal Server Error**
+
+```json
+{
+  "success": false,
+  "error": "An unexpected error occured while processing your request"
+}
+```
